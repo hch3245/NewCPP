@@ -1,0 +1,19 @@
+{
+    "Version": "1.2",
+    "Data": {
+        "Source": "c:\\ueprojects\\gitproject\\newcpp\\newcpp\\intermediate\\build\\win64\\unrealeditor\\inc\\newcpp\\uht\\newcppgamemode.gen.cpp",
+        "ProvidedModule": "",
+        "PCH": "c:\\ueprojects\\gitproject\\newcpp\\newcpp\\intermediate\\build\\win64\\x64\\newcppeditor\\development\\unrealed\\sharedpch.unrealed.project.valapi.cpp20.h.pch",
+        "Includes": [
+            "c:\\ueprojects\\gitproject\\newcpp\\newcpp\\intermediate\\build\\win64\\x64\\unrealeditor\\development\\newcpp\\definitions.newcpp.h",
+            "c:\\ueprojects\\gitproject\\newcpp\\newcpp\\source\\newcpp\\newcppgamemode.h",
+            "c:\\unrealengine\\ue_5.5\\engine\\source\\runtime\\engine\\classes\\gameframework\\gamemodebase.h",
+            "c:\\unrealengine\\ue_5.5\\engine\\source\\runtime\\engine\\classes\\engine\\serverstatreplicator.h",
+            "c:\\unrealengine\\ue_5.5\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\serverstatreplicator.generated.h",
+            "c:\\unrealengine\\ue_5.5\\engine\\intermediate\\build\\win64\\unrealeditor\\inc\\engine\\uht\\gamemodebase.generated.h",
+            "c:\\ueprojects\\gitproject\\newcpp\\newcpp\\intermediate\\build\\win64\\unrealeditor\\inc\\newcpp\\uht\\newcppgamemode.generated.h"
+        ],
+        "ImportedModules": [],
+        "ImportedHeaderUnits": []
+    }
+}
