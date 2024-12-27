@@ -1,8 +1,0 @@
-{
-	"SourceFiles": [
-		"C:\\UEProjects\\GitProject\\NewCPP\\NewCPP\\Source\\NewCPP\\NewCPP.Build.cs",
-		"C:\\UEProjects\\GitProject\\NewCPP\\NewCPP\\Source\\NewCPP.Target.cs",
-		"C:\\UEProjects\\GitProject\\NewCPP\\NewCPP\\Source\\NewCPPEditor.Target.cs"
-	],
-	"EngineVersion": "5.5.1"
-}
