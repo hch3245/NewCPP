@@ -52,10 +52,39 @@ ANewCPPCharacter::ANewCPPCharacter()
 
 	// Note: The skeletal mesh and anim blueprint references on the Mesh component (inherited from Character) 
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
+
+	// 어빌리티 시스템 컴포넌트 생성해서 추가
+	AblitySystemComponent = CreateDefaultSubobject<UMyAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+
+	// 온라인 연동 사용 여부 true 온라인 하겠다.
+	AblitySystemComponent->SetIsReplicated(true);
+
+	// 능력치 변동시 이벤트를 호출할지 여부
+	AblitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+
+
 }
 
 //////////////////////////////////////////////////////////////////////////
 // Input
+
+void ANewCPPCharacter::BeginPlay()
+{
+	Super::BeginPlay();
+
+	if (IsValid(AblitySystemComponent)) {
+		// AblitySystemComponent안에 있는 데이터 에셋을 UmyAttributeSet타입으로 가져온다.
+		// 데이터 에셋은 언리얼 에디터에서 우리가 만들어서 넣어줌
+		AttributeSetVar = AblitySystemComponent->GetSet<UMyAttributeSet>();
+		if (AttributeSetVar != nullptr) {
+
+		}
+	}
+	else {
+		// 호출한 함수 이름으로 에러메시지 출력
+		UE_LOG(LogTemp, Error, TEXT("%s()Missing AbilitySystemComponent"), *FString(__FUNCTION__));
+	}
+}
 
 void ANewCPPCharacter::NotifyControllerChanged()
 {
@@ -90,6 +119,11 @@ void ANewCPPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	{
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
+}
+
+UMyAbilitySystemComponent* ANewCPPCharacter::GetAblitySystemComponent() const
+{
+	return AblitySystemComponent;
 }
 
 void ANewCPPCharacter::Move(const FInputActionValue& Value)

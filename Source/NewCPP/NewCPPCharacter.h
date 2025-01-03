@@ -5,7 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Logging/LogMacros.h"
+
+#include "MyAbilitySystemComponent.h"	// 어빌리티 시스템 컴포넌트
+#include "MyAttributeSet.h"		// 속성 데이터 테이블
+
 #include "NewCPPCharacter.generated.h"
+
+
+class UMyAbilitySystemComponent;	// 클래스 전방선언
+class UMyAttributeSet;
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -47,6 +55,26 @@ class ANewCPPCharacter : public ACharacter
 public:
 	ANewCPPCharacter();
 	
+public:
+
+	// 어빌리티 시스템 컴포넌트 추가
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GASGamePlayAbility")
+	class UMyAbilitySystemComponent* AblitySystemComponent;
+	// Gas 함수
+	virtual class UMyAbilitySystemComponent* GetAblitySystemComponent() const;
+
+	// 캐릭터 관련 정보 보관(HP,MP,Damage 그런거) 데이터 셋
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GASGamePlayAbility")
+	const class UMyAttributeSet* AttributeSetVar;
+
+	// EditAnywhere 에디터에서 초기에 캐릭터 스킬 변경 가능하도록
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "GASGamePlayAbility")
+	TArray<TSubclassOf<class UGameplayAbility>> InitialAbilities;
+
+	// 초기 능력치 세팅, Maxhealth, MaxMana 처음에 세팅
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASGamePlayAbility")
+	TSubclassOf<class UGameplayEffect> DefaultAttributes;
+
 
 protected:
 
@@ -58,6 +86,8 @@ protected:
 			
 
 protected:
+
+	virtual void BeginPlay();
 
 	virtual void NotifyControllerChanged() override;
 
