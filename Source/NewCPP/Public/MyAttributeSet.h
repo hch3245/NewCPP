@@ -30,7 +30,7 @@ public:
 	// Health값이 변경 됐을 때 ReplicationUsing에 넣어준 함수를 호출
 	UPROPERTY(BlueprintReadOnly, Category = "Attributes", ReplicatedUsing = OnRep_Health)
 	FGameplayAttributeData Health;
-	ATTRIBUTE_ACCESSORS(UMyHealthSet, Health); // 체력 관련함수 매크로
+	ATTRIBUTE_ACCESSORS(UMyAttributeSet, Health); // 체력 관련함수 매크로
 	
 	//현재 체력 변경시 호출할 델리게이트
 	FAttributeChangeDelegate HealthChangeDelegate;

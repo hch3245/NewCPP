@@ -59,7 +59,7 @@ public:
 
 	// 어빌리티 시스템 컴포넌트 추가
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "GASGamePlayAbility")
-	class UMyAbilitySystemComponent* AblitySystemComponent;
+	class UMyAbilitySystemComponent* AbilitySystemComponent;
 	// Gas 함수
 	virtual class UMyAbilitySystemComponent* GetAblitySystemComponent() const;
 
@@ -74,6 +74,71 @@ public:
 	// 초기 능력치 세팅, Maxhealth, MaxMana 처음에 세팅
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASGamePlayAbility")
 	TSubclassOf<class UGameplayEffect> DefaultAttributes;
+
+public: // 스킬 관련 함수
+	
+	// 스킬 어빌리티 하나 추가
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilitySkill")
+	void InitializeAbility(
+		TSubclassOf<UGameplayAbility> AbilityToGet,
+		int32 AbilityLevel);
+	
+	// 스킬 어빌리티 여러개 추가
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilitySkill")
+	void InitializeAbilityMulti(
+		TArray<TSubclassOf<UGameplayAbility>> AbilityToAcquire,
+		int32 AbilityLevel);
+
+	// 플레이어가 해당 캐릭터 권한 얻었을 때
+	virtual void PossessedBy(AController* NewController) override;
+	virtual void OnRep_PlayerState() override; // 온라인에서 캐릭터 상태 변경시
+
+
+public: // 어빌리티 태그 시스템
+	
+	// 태그 여러 개 삭제 FGameplayTagContainer가 태그 여러개 담음
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilityTag")
+	void RemoveAbilityWithTags(FGameplayTagContainer TagContainer);
+
+	// 태그 레벨 변경 LOL 스킬 레벨
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilityTag")
+	void ChangeAbilityLevelWithTags(FGameplayTagContainer TagContainer, int32 level);
+
+	// 태그 중간취소
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilityTag")
+	void CancelAbilityWithTags(FGameplayTagContainer WithTag,
+								FGameplayTagContainer WithOutTags);
+
+	// 태그 추가
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilityTag")
+	void AddLooseGameplayTag(FGameplayTag TagToAdd);
+
+	// 태그 하나 삭제
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilityTag")
+	void RemoveLooseGameplayTag(FGameplayTag TagToRemove);
+
+
+
+public:	// 캐릭터 속성 관련
+
+	UFUNCTION() // 체력 변경시 호출, C++로 구현 블루프린트도 부름
+	virtual void OnHealthChangeNative(float Health, int32 StackCount);
+
+	// 블프에서 이벤트 발생 시켜서 블루프린트에서 기능 구현
+	UFUNCTION(BlueprintImplementableEvent, Category = "GASGamePlayAbilityAttribute") // 체력
+	void OnHealthChange(float Health, int32 StackCount);
+
+	// 현재 체력을 블루프린트에서 바로 확인 s
+	UFUNCTION(BlueprintPure, Category = "GASGamePlayAbilityAttribute")
+	void HealthValues(float& Health, float& MaxHealth);
+
+	// 블루프린트에서 호출 가능
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilityAttribute")
+	float GetHealth() const;
+	
+	// 블루프린트에서 호출 가능
+	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilityAttribute")
+	float GetMaxHealth() const;
 
 
 protected:

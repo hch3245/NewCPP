@@ -54,13 +54,13 @@ ANewCPPCharacter::ANewCPPCharacter()
 	// are set in the derived blueprint asset named ThirdPersonCharacter (to avoid direct content references in C++)
 
 	// 어빌리티 시스템 컴포넌트 생성해서 추가
-	AblitySystemComponent = CreateDefaultSubobject<UMyAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
+	AbilitySystemComponent = CreateDefaultSubobject<UMyAbilitySystemComponent>(TEXT("AbilitySystemComponent"));
 
 	// 온라인 연동 사용 여부 true 온라인 하겠다.
-	AblitySystemComponent->SetIsReplicated(true);
+	AbilitySystemComponent->SetIsReplicated(true);
 
 	// 능력치 변동시 이벤트를 호출할지 여부
-	AblitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
+	AbilitySystemComponent->SetReplicationMode(EGameplayEffectReplicationMode::Mixed);
 
 
 }
@@ -72,12 +72,15 @@ void ANewCPPCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (IsValid(AblitySystemComponent)) {
+	if (IsValid(AbilitySystemComponent)) {
 		// AblitySystemComponent안에 있는 데이터 에셋을 UmyAttributeSet타입으로 가져온다.
 		// 데이터 에셋은 언리얼 에디터에서 우리가 만들어서 넣어줌
-		AttributeSetVar = AblitySystemComponent->GetSet<UMyAttributeSet>();
+		AttributeSetVar = AbilitySystemComponent->GetSet<UMyAttributeSet>();
 		if (AttributeSetVar != nullptr) {
 
+			// HealthChangeDelegate에 바인딩
+			const_cast<UMyAttributeSet*>(AttributeSetVar)->HealthChangeDelegate.AddDynamic(this,
+				&ANewCPPCharacter::OnHealthChangeNative);
 		}
 	}
 	else {
@@ -123,7 +126,130 @@ void ANewCPPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 UMyAbilitySystemComponent* ANewCPPCharacter::GetAblitySystemComponent() const
 {
-	return AblitySystemComponent;
+	return AbilitySystemComponent;
+}
+
+void ANewCPPCharacter::InitializeAbility(TSubclassOf<UGameplayAbility> AbilityToGet, int32 AbilityLevel)
+{
+
+	// 온라인일때 서버만 능력치 관리하므로 서버일 때만 추가
+	if (HasAuthority()) {
+		AbilitySystemComponent->GiveAbility(
+			FGameplayAbilitySpec(AbilityToGet, AbilityLevel));
+	}
+	
+}
+
+void ANewCPPCharacter::InitializeAbilityMulti(TArray<TSubclassOf<UGameplayAbility>> AbilityToAcquire, int32 AbilityLevel)
+{
+	if (HasAuthority()) {
+		// 배열로 초기화
+		for (TSubclassOf<UGameplayAbility> AbilityItem : AbilityToAcquire) {
+			InitializeAbility(AbilityItem, AbilityLevel);
+		}
+	}
+}
+
+void ANewCPPCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	if (IsValid(AbilitySystemComponent)) {
+
+		// 어빌리티 시스템에 시스템을 사용하는 액터를 전달해서
+		// 어빌리티 시스템 컴포넌트에서 내 액터를 찾아올 수 있도록 전달
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+		
+		// 에디터에서 전달해준 스킬 어빌리티 레벨은 전부 1
+		InitializeAbilityMulti(InitialAbilities, 1); 
+	}
+
+}
+
+void ANewCPPCharacter::OnRep_PlayerState()
+{
+	if (IsValid(AbilitySystemComponent)) {
+		AbilitySystemComponent->InitAbilityActorInfo(this, this);
+	}
+}
+
+void ANewCPPCharacter::RemoveAbilityWithTags(FGameplayTagContainer TagContainer)
+{
+	// 가져올 태그 담을 임시 배열
+	TArray<struct FGameplayAbilitySpec*> MatchingAbilities;
+
+	// AbilitySystemComponent안에 있는 활성화 된 TagContainer이랑 동일한 애들 가져온다.
+	AbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags
+	(TagContainer, MatchingAbilities, true);
+
+	for (FGameplayAbilitySpec* spec : MatchingAbilities) {
+		AbilitySystemComponent->ClearAbility(spec->Handle);
+	}
+
+
+}
+
+void ANewCPPCharacter::ChangeAbilityLevelWithTags(FGameplayTagContainer TagContainer, int32 level)
+{
+
+	// 가져올 태그 담을 임시 배열
+	TArray<struct FGameplayAbilitySpec*> MatchingAbilities;
+
+	// AbilitySystemComponent안에 있는 활성화 된 TagContainer이랑 동일한 애들 가져온다.
+	AbilitySystemComponent->GetActivatableGameplayAbilitySpecsByAllMatchingTags
+	(TagContainer, MatchingAbilities, true);
+
+	for (FGameplayAbilitySpec* spec : MatchingAbilities) {
+		
+		// 레벨만 변경
+		spec->Level = level;
+	}
+}
+
+void ANewCPPCharacter::CancelAbilityWithTags(FGameplayTagContainer WithTag, FGameplayTagContainer WithOutTags)
+{
+	AbilitySystemComponent->CancelAbilities(&WithTag, &WithOutTags);
+}
+
+void ANewCPPCharacter::AddLooseGameplayTag(FGameplayTag TagToAdd)
+{
+	AbilitySystemComponent->AddLooseGameplayTag(TagToAdd);
+	AbilitySystemComponent->SetTagMapCount(TagToAdd, 1);
+}
+
+void ANewCPPCharacter::RemoveLooseGameplayTag(FGameplayTag TagToRemove)
+{
+	AbilitySystemComponent->RemoveLooseGameplayTag(TagToRemove);
+}
+
+void ANewCPPCharacter::OnHealthChangeNative(float Health, int32 StackCount)
+{
+	// 블루프린트 함수 호출, 블루프린트에서 기능 구현
+	OnHealthChange(Health, StackCount);
+	if (Health <= 0) {
+		// 죽었을 때 이벤트, 아직 없음
+	}
+}
+
+void ANewCPPCharacter::HealthValues(float& Health, float& MaxHealth)
+{
+	if (IsValid(AttributeSetVar)) {
+		Health = AttributeSetVar->GetHealth();
+		MaxHealth = 1000.f; // 아직 없어서 그냥 1000
+	}
+	
+}
+
+float ANewCPPCharacter::GetHealth() const
+{
+	if (IsValid(AttributeSetVar))
+		return AttributeSetVar->GetHealth();
+	else
+		return null;
+}
+
+float ANewCPPCharacter::GetMaxHealth() const
+{
+	return 1000.0f; // Max 값 없어서 현재 1000
 }
 
 void ANewCPPCharacter::Move(const FInputActionValue& Value)
