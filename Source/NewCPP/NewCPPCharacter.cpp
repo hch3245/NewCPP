@@ -241,10 +241,8 @@ void ANewCPPCharacter::HealthValues(float& Health, float& MaxHealth)
 
 float ANewCPPCharacter::GetHealth() const
 {
-	if (IsValid(AttributeSetVar))
-		return AttributeSetVar->GetHealth();
-	else
-		return null;
+
+	return AttributeSetVar->GetHealth();
 }
 
 float ANewCPPCharacter::GetMaxHealth() const
