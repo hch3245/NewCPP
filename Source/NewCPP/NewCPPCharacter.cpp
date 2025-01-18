@@ -81,6 +81,10 @@ void ANewCPPCharacter::BeginPlay()
 			// HealthChangeDelegate에 바인딩
 			const_cast<UMyAttributeSet*>(AttributeSetVar)->HealthChangeDelegate.AddDynamic(this,
 				&ANewCPPCharacter::OnHealthChangeNative);
+
+			InitializeAttribute();
+			AddStartUpEffects();
+
 		}
 	}
 	else {
@@ -127,6 +131,56 @@ void ANewCPPCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 UMyAbilitySystemComponent* ANewCPPCharacter::GetAblitySystemComponent() const
 {
 	return AbilitySystemComponent;
+}
+
+void ANewCPPCharacter::InitializeAttribute()
+{
+	if (!IsValid(AbilitySystemComponent)) {
+		return;
+	}
+
+	if (!IsValid(DefaultAttributes)) {
+		// 호출한 함수 이름으로 에러메시지 출력
+		UE_LOG(LogTemp, Error, TEXT("%s()Missing DefaultAttributes"), *FString(__FUNCTION__));
+		return;
+	}
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+
+	EffectContext.AddSourceObject(this);
+
+	FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(
+		DefaultAttributes, 0, EffectContext);
+
+	if (NewHandle.IsValid()) {
+		AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(
+			*NewHandle.Data.Get(), AbilitySystemComponent);
+	}
+
+
+}
+
+void ANewCPPCharacter::AddStartUpEffects()
+{
+	if (!IsValid(AbilitySystemComponent)) {
+		return;
+	}
+
+
+	FGameplayEffectContextHandle EffectContext = AbilitySystemComponent->MakeEffectContext();
+
+	EffectContext.AddSourceObject(this);
+
+	for (TSubclassOf<UGameplayEffect> GameplayEffect : StartUpEffects) {
+
+		FGameplayEffectSpecHandle NewHandle = AbilitySystemComponent->MakeOutgoingSpec(
+			GameplayEffect, 0, EffectContext);
+
+		if (NewHandle.IsValid()) {
+			AbilitySystemComponent->ApplyGameplayEffectSpecToTarget(
+				*NewHandle.Data.Get(), AbilitySystemComponent);
+		}
+	}
 }
 
 void ANewCPPCharacter::InitializeAbility(TSubclassOf<UGameplayAbility> AbilityToGet, int32 AbilityLevel)

@@ -75,7 +75,16 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASGamePlayAbility")
 	TSubclassOf<class UGameplayEffect> DefaultAttributes;
 
+	// 기본 체력 회복이나 마력 회복같은 것.
+	UPROPERTY(BlueprintReadOnly, EditAnywhere, Category = "GASGamePlayAbility")
+	TArray<TSubclassOf<class UGameplayEffect>> StartUpEffects;
+
 public: // 스킬 관련 함수
+
+	// 기본 능력치 초기화
+	void InitializeAttribute();
+	void AddStartUpEffects();
+
 	
 	// 스킬 어빌리티 하나 추가
 	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilitySkill")
