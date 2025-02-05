@@ -280,7 +280,7 @@ void ANewCPPCharacter::OnHealthChangeNative(float Health, int32 StackCount)
 	// 블루프린트 함수 호출, 블루프린트에서 기능 구현
 	OnHealthChange(Health, StackCount);
 	if (Health <= 0) {
-		// 죽었을 때 이벤트, 아직 없음
+		Die();
 	}
 }
 
@@ -302,6 +302,34 @@ float ANewCPPCharacter::GetHealth() const
 float ANewCPPCharacter::GetMaxHealth() const
 {
 	return 1000.0f; // Max 값 없어서 현재 1000
+}
+
+void ANewCPPCharacter::Die()
+{
+	GetCapsuleComponent()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetCharacterMovement()->GravityScale = 0;
+	GetCharacterMovement()->Velocity = FVector(0);
+
+	if (IsValid(AbilitySystemComponent)) {
+		// 현재 실행중인 어빌리티 모두 취소
+		AbilitySystemComponent->CancelAbilities();
+
+		// Die 태그를 만들어서 붙이기
+		FGameplayTag DieEffectTag = FGameplayTag::RequestGameplayTag(FName("Die"));
+
+
+		FGameplayTagContainer gameplayTag{ DieEffectTag };
+
+		// 내 어빌리티 중에 Die 태그가 붙은 어빌리티가 있으면 그걸 실행
+		bool isSuccess = AbilitySystemComponent->TryActivateAbilitiesByTag(gameplayTag);
+
+		if (!isSuccess) {
+			
+			// 태그만 넣어주기.
+			AbilitySystemComponent->AddLooseGameplayTag(DieEffectTag);
+			FinishDying();	// 블루프린트에 이벤트 전달
+		}
+	}
 }
 
 void ANewCPPCharacter::Move(const FInputActionValue& Value)

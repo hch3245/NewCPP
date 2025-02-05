@@ -149,6 +149,13 @@ public:	// 캐릭터 속성 관련
 	UFUNCTION(BlueprintCallable, Category = "GASGamePlayAbilityAttribute")
 	float GetMaxHealth() const;
 
+public:
+	// 코드에서 호출할 함수
+	void Die();
+
+	// 죽었을 때 부를 함수 블루프린트에서 구현
+	UFUNCTION(BlueprintImplementableEvent, Category = "GASGamePlayAbilityAttribute")
+	void FinishDying();
 
 protected:
 
