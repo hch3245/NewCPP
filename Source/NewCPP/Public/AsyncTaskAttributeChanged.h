@@ -17,7 +17,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnAttributeChanged,FGameplayAttr
 
 // 블루프린트 로드에서 자동으로 리스너를 등록하여
 // Attribute가 변경됐을 때 호출해줄 수 있도록 함
-UCLASS()
+UCLASS(BlueprintType, meta = (ExposedAsyncProxy = AsyncTask))
 class NEWCPP_API UAsyncTaskAttributeChanged : public UBlueprintAsyncActionBase
 {
 	GENERATED_BODY()
