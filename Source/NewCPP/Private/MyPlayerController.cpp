@@ -29,17 +29,17 @@ void AMyPlayerController::OnRep_PlayerState()
 {
 	Super::OnRep_PlayerState();
 
-	if (!IsLocalPlayerController())
-		return;
+	//if (!IsLocalPlayerController())
+	//	return;
 
-	AHUD* hud = GetHUD();
-	if (IsValid(hud))
-	{
-		AMyHUD* myhud = Cast<AMyHUD>(hud);
-		if (IsValid(myhud))
-		{
-			myhud->CreateHUD();
-			myhud->SpawnPlayerStateSetting(Cast<ANewCPPCharacter>(GetCharacter()));
-		}
-	}
+	//AHUD* hud = GetHUD();
+	//if (IsValid(hud))
+	//{
+	//	AMyHUD* myhud = Cast<AMyHUD>(hud);
+	//	if (IsValid(myhud))
+	//	{
+	//		myhud->CreateHUD();
+	//		myhud->SpawnPlayerStateSetting(Cast<ANewCPPCharacter>(GetCharacter()));
+	//	}
+	//}
 }

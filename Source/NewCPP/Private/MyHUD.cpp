@@ -21,8 +21,10 @@ void AMyHUD::CreateHUD()
 		return;
 	}
 
+
 	// UIHUDWidgetClass 기준으로 위젯 생성
 	UIHUDWidget = CreateWidget<UHUDWidget>(GetWorld(), UIHUDWidgetClass);
+	if(UIHUDWidget != nullptr)
 	UIHUDWidget->AddToViewport(); // 뷰포트에 추가해줌.
 }
 

@@ -295,13 +295,17 @@ void ANewCPPCharacter::HealthValues(float& Health, float& MaxHealth)
 
 float ANewCPPCharacter::GetHealth() const
 {
-
-	return AttributeSetVar->GetHealth();
+	if (IsValid(AttributeSetVar))
+		return AttributeSetVar->GetHealth();
+	else {
+		UE_LOG(LogTemp, Error, TEXT("%s()Not Valid AttributeSetVar"), *FString(__FUNCTION__));
+		return 100.f;	// 현재는 AttributeSetVar이 만들어지기 전에 불리면 100을 임의로 넣도록 처리
+	}
 }
 
 float ANewCPPCharacter::GetMaxHealth() const
 {
-	return 1000.0f; // Max 값 없어서 현재 1000
+	return 100.0f; // Max 값 없어서 현재 100
 }
 
 void ANewCPPCharacter::Die()
